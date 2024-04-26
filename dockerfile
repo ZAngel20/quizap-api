@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:18
 
 ENV appDir /var/www/app/current
 
@@ -14,16 +14,16 @@ RUN npm i -g pm2
 
 # Add application files (copiar los archivos compilados)
 ADD ./.env ${appDir}
-ADD ./dist ${appDir}/dist
+ADD ./src ${appDir}
 ADD ./package.json ${appDir}
 ADD ./package-lock.json ${appDir}
 ADD ./tsconfig.build.json ${appDir}
 ADD ./tsconfig.json ${appDir}
 RUN mkdir -p ${appDir}/files/tmp
 
-RUN npm ci --only=production
+RUN npm i
+RUN npm run build
 
 EXPOSE 3000
-EXPOSE 4000
 
 CMD ["pm2", "start", "dist/main.js", "--no-daemon"]

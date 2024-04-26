@@ -25,10 +25,12 @@ jobs:
 
     # Build and push Docker image
     - name: Build and Push Docker Image
+      env:
+        ENV: ${{ secrets.ENV }}
       run: |
-        docker build -t nombre_imagen:etiqueta .
-        docker push nombre_imagen:etiqueta
+        echo "$ENV" | base64 -d > .env
+        docker build -t quizap/api .
 
     # Ejecute post file
     - name: Ejecute Server File
-      run: "~/Api.sh"
+      run: "~/api.sh"
