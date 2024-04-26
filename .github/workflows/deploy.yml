@@ -1,0 +1,34 @@
+name: API Deploy
+
+
+on:
+  push:
+    branches: [ "master" ]
+
+
+jobs:
+  build:
+  
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        configuration: [Release]
+
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Build and push Docker image
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t nombre_imagen:etiqueta .
+        docker push nombre_imagen:etiqueta
+
+    # Ejecute post file
+    - name: Ejecute Server File
+      run: "~/Api.sh"
