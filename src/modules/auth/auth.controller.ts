@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthSignInDto } from './dto/auth-signin.dto';
@@ -7,6 +7,9 @@ import { AuthTokenDto } from './dto/auth-token.dto';
 import { AuthSignUpDto } from './dto/auth-signup.dto';
 import { AuthSignUpCodeDto } from './dto/auth-signup-code.dto';
 import { AuthSendActivationMail } from './dto/auth-send-activation-mail.dto';
+import { UserEntity } from '../../data/entities/user.entity';
+import { GetUser } from './decorators/get-user.decorator';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -43,5 +46,11 @@ export class AuthController {
   @ApiOperation(schema.SwOperationSendActivationMail)
   resendActivationMail(@Body() dto: AuthSendActivationMail) {
     return this.service.resendActivationMail(dto);
+  }
+
+  @Get('getUser/test')
+  @UseGuards(AuthGuard())
+  getUserTest(@GetUser() user: UserEntity) {
+    return user;
   }
 }
