@@ -4,6 +4,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { TestModule } from './modules/test/test.module';
 import { dataSourceOptions } from './config/typeorm.config';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { dataSourceOptions } from './config/typeorm.config';
 
     AuthModule,
     UserModule,
+    CategoryModule,
     // TestModule,
   ],
 })
