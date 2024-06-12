@@ -3,8 +3,16 @@ import {
   ExecutionContext,
   ForbiddenException,
 } from '@nestjs/common';
-import { UserEntity } from '../../../data/entities/user.entity';
-import { UserType } from '../../../data/enums/user-type.enum';
+import { UserEntity } from '../../data/entities/user.entity';
+import { UserType } from '../../data/enums/user-type.enum';
+
+export const GetUser = createParamDecorator(
+  (_data, ctx: ExecutionContext): UserEntity => {
+    const req = ctx.switchToHttp().getRequest();
+
+    return req.user;
+  },
+);
 
 export const GetAdmin = createParamDecorator(
   (scopes: string | string[], cxt: ExecutionContext): UserEntity => {
