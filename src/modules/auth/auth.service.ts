@@ -55,7 +55,7 @@ export class AuthService {
       await this._sendActivationMail({ email, activationToken });
     } catch (ex) {
       if (ex.code == 'ER_DUP_ENTRY') {
-        throw new ConflictException('Email already exists');
+        throw new ConflictException('[user-email] already exists');
       } else {
         throw new InternalServerErrorException();
       }
@@ -82,8 +82,6 @@ export class AuthService {
     user.activatedDate = new Date();
     user.status = UserStatus.Active;
     user.activationToken = null;
-
-    return this.repository.save(user);
   }
 
   async signIn(dto: AuthSignInDto): Promise<AuthTokenDto> {
