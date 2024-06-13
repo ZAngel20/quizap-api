@@ -31,6 +31,19 @@ export class AuthService {
     private emailSenderService: EmailsenderService,
   ) {}
 
+  async getUserByToken(user: UserEntity): Promise<UserEntity> {
+    user = await this.repository.findOne({
+      where: { id: user.id },
+      select: ['id', 'userName', 'email'],
+    });
+
+    return user;
+  }
+
+  async getUserById(id: string): Promise<UserEntity> {
+    return this.repository.findOne({ where: { id } });
+  }
+
   async signUp(dto: AuthSignUpDto) {
     try {
       const { userName, passwd, email } = dto;
@@ -82,6 +95,7 @@ export class AuthService {
     user.activatedDate = new Date();
     user.status = UserStatus.Active;
     user.activationToken = null;
+    await this.repository.save(user);
   }
 
   async signIn(dto: AuthSignInDto): Promise<AuthTokenDto> {
@@ -114,6 +128,11 @@ export class AuthService {
     // GET USER
     const user = await this.repository.findOne({ where: { email: dto.email } });
     if (!user) throw new NotFoundException('[user] not found');
+
+    // CHECK STATUS
+    if (user.status == UserStatus.Active) {
+      throw new ConflictException('[user-status] already activated');
+    }
 
     // GENERATE TOKEN
     const activationToken = await this._generateAccessToken();

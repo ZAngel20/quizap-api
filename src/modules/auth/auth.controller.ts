@@ -1,5 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthSignInDto } from './dto/auth-signin.dto';
 import * as schema from './auth.swagger';
@@ -7,11 +13,31 @@ import { AuthTokenDto } from './dto/auth-token.dto';
 import { AuthSignUpDto } from './dto/auth-signup.dto';
 import { AuthSignUpCodeDto } from './dto/auth-signup-code.dto';
 import { AuthSendActivationMail } from './dto/auth-send-activation-mail.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { GetAdmin, GetUser } from '../../shared/decoratos/user.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private service: AuthService) {}
+
+  /*
+   *  GET
+   */
+
+  @Get()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  getUserByToken(@GetUser() user) {
+    return this.service.getUserByToken(user);
+  }
+
+  @Get('/:id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  getUserById(@GetAdmin() user, @Param('id') id: string) {
+    return this.service.getUserById(id);
+  }
 
   /*
    *  POST
@@ -50,6 +76,7 @@ export class AuthController {
   @Post('resendActivationMail')
   @ApiBody(schema.SwBodyAuthSendActivationMail)
   @ApiOperation(schema.SwOperationSendActivationMail)
+  @ApiResponse({ status: 409, description: '[user-status] already activated' })
   @ApiResponse({ status: 404, description: '[user] not found' })
   @ApiResponse({ status: 201 })
   resendActivationMail(@Body() dto: AuthSendActivationMail) {
