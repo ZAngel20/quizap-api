@@ -24,7 +24,7 @@ export class EmailsenderService implements OnApplicationBootstrap {
 
   private async getContentOf(fileName: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-      fs.readFile(`./data/mails/${fileName}`, 'utf-8', (err, data) => {
+      fs.readFile(`src/data/mails/${fileName}`, 'utf-8', (err, data) => {
         if (err) {
           reject(err);
         } else {
