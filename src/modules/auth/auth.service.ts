@@ -20,6 +20,9 @@ import { SecurityService } from '../../shared/services/security.service';
 import { EmailsenderService } from '../../shared/services/email-sender.service';
 import { UserStatus } from '../../data/enums/user-status.enum';
 import { AuthSendActivationMail } from './dto/auth-send-activation-mail.dto';
+import { AuthRequestPasswdChangeDto } from './dto/auth-request-passwd-change.dto';
+import { AuthChangePasswdDto } from './dto/auth-change-passwd.dto';
+import { AuthChangeInfoDto } from './dto/auth-change-info.dto';
 
 @Injectable()
 export class AuthService {
@@ -49,11 +52,10 @@ export class AuthService {
       const { userName, passwd, email } = dto;
 
       // HASH PASSWD
-      const salt = await bcrypt.genSalt();
-      const hashedPasswd = await bcrypt.hash(passwd, salt);
+      const hashedPasswd = await this._hashPasswd(passwd);
 
       // GENERATE TOKEN
-      const activationToken = await this._generateAccessToken();
+      const activationToken = await this._generateToken();
 
       // SAVE USER
       const user: UserEntity = this.repository.create({
@@ -124,6 +126,44 @@ export class AuthService {
     }
   }
 
+  async requestPasswdChange(dto: AuthRequestPasswdChangeDto) {
+    const { email } = dto;
+
+    // GET USER
+    const user = await this.repository.findOne({ where: { email } });
+    if (!user) throw new NotFoundException('[user] not found');
+
+    // GENERATE TOKEN
+    const token = await this._generateToken();
+
+    // SAVE TOKEN
+    user.passwdToken = token;
+    await this.repository.save(user);
+
+    // SEND MAIL
+    await this._sendChangePasswdTokenMail({ email, token });
+  }
+
+  async changePasswd(dto: AuthChangePasswdDto) {
+    const { email, token, newPasswd } = dto;
+
+    // GET USER
+    const user = await this.repository.findOne({ where: { email } });
+    if (!user) throw new NotFoundException('[user] not found');
+
+    // CHECK TOKEN
+    if (user.passwdToken !== token) {
+      throw new ForbiddenException('[user-token] is not valid');
+    }
+
+    // CHANGE PASSWD
+    const hashedPasswd = await this._hashPasswd(newPasswd);
+
+    user.passwd = hashedPasswd;
+    user.passwdToken = null;
+    await this.repository.save(user);
+  }
+
   async resendActivationMail(dto: AuthSendActivationMail) {
     // GET USER
     const user = await this.repository.findOne({ where: { email: dto.email } });
@@ -135,7 +175,7 @@ export class AuthService {
     }
 
     // GENERATE TOKEN
-    const activationToken = await this._generateAccessToken();
+    const activationToken = await this._generateToken();
     user.activationToken = activationToken;
     await this.repository.save(user);
 
@@ -143,7 +183,36 @@ export class AuthService {
     this._sendActivationMail({ email: user.email, activationToken });
   }
 
-  async _generateAccessToken(): Promise<string> {
+  async changeUserInfo(
+    user: UserEntity,
+    dto: AuthChangeInfoDto,
+  ): Promise<UserEntity> {
+    // GET USER
+    user = await this.repository.findOne({
+      where: { id: user.id },
+      select: ['id', 'userName', 'email'],
+    });
+
+    // UPDATE INFO
+    user.userName = dto.userName;
+
+    const userCp = { ...user };
+    await this.repository.save(user);
+
+    return userCp;
+  }
+
+  /*
+   *  PRIVATE FUNCTIONS
+   */
+
+  async _hashPasswd(passwd: string) {
+    // HASH PASSWD
+    const salt = await bcrypt.genSalt();
+    return bcrypt.hash(passwd, salt);
+  }
+
+  async _generateToken(): Promise<string> {
     return this.securityService.generateToken(4);
   }
 
@@ -152,6 +221,14 @@ export class AuthService {
       email,
       'Activation Mail',
       `Token: ${activationToken}`,
+    );
+  }
+
+  async _sendChangePasswdTokenMail({ email, token }) {
+    return this.emailSenderService.send(
+      email,
+      'Change Password Mail',
+      `Token: ${token}`,
     );
   }
 }
