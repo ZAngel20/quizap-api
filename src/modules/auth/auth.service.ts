@@ -23,12 +23,15 @@ import { AuthSendActivationMail } from './dto/auth-send-activation-mail.dto';
 import { AuthRequestPasswdChangeDto } from './dto/auth-request-passwd-change.dto';
 import { AuthChangePasswdDto } from './dto/auth-change-passwd.dto';
 import { AuthChangeInfoDto } from './dto/auth-change-info.dto';
+import { RankingEntity } from '../../data/entities/ranking.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private repository: Repository<UserEntity>,
+    @InjectRepository(RankingEntity)
+    private rankingRepository: Repository<RankingEntity>,
     private jwtService: JwtService,
     private securityService: SecurityService,
     private emailSenderService: EmailsenderService,
@@ -65,6 +68,13 @@ export class AuthService {
         activationToken,
       });
       await this.repository.save(user);
+
+      // CREATE SCORE ROW
+      const ranking = {
+        idUser: user.id,
+        score: 0,
+      };
+      await this.rankingRepository.save(ranking);
 
       // SEND MAIL
       await this._sendActivationMail({ email, activationToken });

@@ -7,9 +7,12 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { QuestionEntity } from './question.entity';
+import { UserLevelEntity } from './user-level.entity';
+import { CategoryEntity } from './category.entity';
 
 @Entity({ name: 'level' })
 export class LevelEntity {
@@ -22,12 +25,12 @@ export class LevelEntity {
   @ApiProperty()
   idCategory: number;
 
-  @ManyToOne(() => LevelEntity, {
+  @ManyToOne(() => CategoryEntity, {
     onDelete: 'RESTRICT',
     onUpdate: 'RESTRICT',
   })
   @JoinColumn({ name: 'idCategory' })
-  category: LevelEntity;
+  category: CategoryEntity;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   @ApiProperty()
@@ -46,4 +49,7 @@ export class LevelEntity {
     },
   })
   questions: QuestionEntity[];
+
+  @OneToMany(() => UserLevelEntity, (userLevel) => userLevel.level)
+  userLevels: UserLevelEntity[];
 }
