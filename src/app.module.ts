@@ -7,6 +7,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { QuestionModule } from './modules/question/question.module';
 import { AnswerModule } from './modules/answer/answer.module';
 import { LevelModule } from './modules/level/level.module';
+import { RankingModule } from './modules/ranking/ranking.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { LevelModule } from './modules/level/level.module';
     QuestionModule,
     AnswerModule,
     LevelModule,
+    RankingModule,
   ],
 })
 export class AppModule {}

@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { SecurityService } from '../../shared/services/security.service';
 import { EmailsenderService } from '../../shared/services/email-sender.service';
+import { RankingEntity } from '../../data/entities/ranking.entity';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { EmailsenderService } from '../../shared/services/email-sender.service';
       secret: 'tu_clave_secreta',
       signOptions: {},
     }),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, RankingEntity]),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, SecurityService, EmailsenderService],

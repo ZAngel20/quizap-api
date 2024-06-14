@@ -86,7 +86,7 @@ export class AuthController {
 
   @Post('requestPasswdChange')
   @ApiResponse({ status: 404, description: '[user] not found' })
-  @ApiResponse({ status: 201, type: AuthTokenDto })
+  @ApiResponse({ status: 201 })
   requestPasswdChange(@Body() dto: AuthRequestPasswdChangeDto) {
     return this.service.requestPasswdChange(dto);
   }
@@ -94,7 +94,7 @@ export class AuthController {
   @Post('changePasswd')
   @ApiResponse({ status: 404, description: '[user] not found' })
   @ApiResponse({ status: 403, description: '[user-token] is not valid' })
-  @ApiResponse({ status: 201, type: AuthTokenDto })
+  @ApiResponse({ status: 201 })
   changePasswd(@Body() dto: AuthChangePasswdDto) {
     return this.service.changePasswd(dto);
   }

@@ -1,6 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { UserType } from '../enums/user-type.enum';
 import { UserStatus } from '../enums/user-status.enum';
+import { RankingEntity } from './ranking.entity';
+import { UserLevelEntity } from './user-level.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity {
@@ -43,4 +51,10 @@ export class UserEntity {
 
   @Column({ type: 'datetime', nullable: true })
   activatedDate?: Date;
+
+  @OneToMany(() => UserLevelEntity, (userLevel) => userLevel.user)
+  userLevels: UserLevelEntity[];
+
+  @OneToOne(() => RankingEntity, (ranking) => ranking.user)
+  ranking: RankingEntity;
 }
