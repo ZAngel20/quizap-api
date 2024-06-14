@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { LevelService } from './level.service';
-import { GetAdmin } from '../../shared/decoratos/user.decorator';
+import { GetAdmin, GetUser } from '../../shared/decoratos/user.decorator';
 import { LevelCreateDto } from './dto/level-create.dto';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LevelAddQuestionDto } from './dto/level-add-question.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { LevelEvaluateDto } from './dto/level-evaluate.dto';
 
 @UseGuards(AuthGuard())
 @ApiBearerAuth()
@@ -45,5 +46,12 @@ export class LevelController {
   @ApiResponse({ status: 201 })
   addQuestion(@GetAdmin() user, @Body() dto: LevelAddQuestionDto) {
     return this.service.addQuestion(dto);
+  }
+
+  @Post('/evaluateLevel')
+  @ApiResponse({ status: 404, description: '[level] not found' })
+  @ApiResponse({ status: 201 })
+  evaluateLevel(@GetUser() user, @Body() dto: LevelEvaluateDto) {
+    return this.service.evaluateLevel(user, dto);
   }
 }
