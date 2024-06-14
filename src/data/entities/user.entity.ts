@@ -35,6 +35,12 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 20, nullable: true })
   activationToken?: string;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  passwdToken?: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  emailToken?: string;
+
   @Column({ type: 'datetime', nullable: true })
   activatedDate?: Date;
 }

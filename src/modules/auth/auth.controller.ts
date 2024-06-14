@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -15,6 +23,9 @@ import { AuthSignUpCodeDto } from './dto/auth-signup-code.dto';
 import { AuthSendActivationMail } from './dto/auth-send-activation-mail.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetAdmin, GetUser } from '../../shared/decoratos/user.decorator';
+import { AuthRequestPasswdChangeDto } from './dto/auth-request-passwd-change.dto';
+import { AuthChangePasswdDto } from './dto/auth-change-passwd.dto';
+import { AuthChangeInfoDto } from './dto/auth-change-info.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -73,6 +84,21 @@ export class AuthController {
     return this.service.signIn(dto);
   }
 
+  @Post('requestPasswdChange')
+  @ApiResponse({ status: 404, description: '[user] not found' })
+  @ApiResponse({ status: 201, type: AuthTokenDto })
+  requestPasswdChange(@Body() dto: AuthRequestPasswdChangeDto) {
+    return this.service.requestPasswdChange(dto);
+  }
+
+  @Post('changePasswd')
+  @ApiResponse({ status: 404, description: '[user] not found' })
+  @ApiResponse({ status: 403, description: '[user-token] is not valid' })
+  @ApiResponse({ status: 201, type: AuthTokenDto })
+  changePasswd(@Body() dto: AuthChangePasswdDto) {
+    return this.service.changePasswd(dto);
+  }
+
   @Post('resendActivationMail')
   @ApiBody(schema.SwBodyAuthSendActivationMail)
   @ApiOperation(schema.SwOperationSendActivationMail)
@@ -81,5 +107,16 @@ export class AuthController {
   @ApiResponse({ status: 201 })
   resendActivationMail(@Body() dto: AuthSendActivationMail) {
     return this.service.resendActivationMail(dto);
+  }
+
+  /*
+   *  PUT
+   */
+
+  @Put()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  changeUserInfo(@GetUser() user, @Body() dto: AuthChangeInfoDto) {
+    return this.service.changeUserInfo(user, dto);
   }
 }
