@@ -97,7 +97,7 @@ export class LevelService {
 
     // GET LEVEL SCORE
     let userLevel = await this.userLevelRepository.findOne({
-      where: { idUser: user.id },
+      where: { idUser: user.id, idLevel: level.id },
     });
 
     // CREATE USER LEVEL IF NOT EXIST
