@@ -69,13 +69,6 @@ export class AuthService {
       });
       await this.repository.save(user);
 
-      // CREATE SCORE ROW
-      const ranking = {
-        idUser: user.id,
-        score: 0,
-      };
-      await this.rankingRepository.save(ranking);
-
       // SEND MAIL
       await this._sendActivationMail({ email, activationToken });
     } catch (ex) {
@@ -103,6 +96,13 @@ export class AuthService {
     if (user.activationToken !== token) {
       throw new ForbiddenException('[user-token] is not valid');
     }
+
+    // CREATE SCORE ROW
+    const ranking = {
+      idUser: user.id,
+      score: 0,
+    };
+    await this.rankingRepository.save(ranking);
 
     user.activatedDate = new Date();
     user.status = UserStatus.Active;
