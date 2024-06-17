@@ -14,7 +14,7 @@ async function bootstrap() {
   publicApp.useGlobalInterceptors(new TransformInterceptor());
 
   // SWAGGER
-  createSwaggerRouter(publicApp, 'Public Example Api');
+  createSwaggerRouter(publicApp, 'Quizzap API');
 
   await publicApp.listen(publicPort);
 
